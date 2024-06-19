@@ -14,4 +14,59 @@
     <string name="username">Username</string>
     <string name="user">User</string>
 
+    <!--    Story Detail-->
+    <string name="glossary">Glossary</string>
+    <string name="indonesia">Indonesia</string>
+    <string name="error_message">Error Message</string>
+    <string name="retry">Retry</string>
+    <string name="synopsis">Synopsis</string>
+    <string name="start">Start</string>
+    <string name="word">Word</string>
+    <string name="explanation">Explanation</string>
+    <string name="province">Province</string>
+
+    <!--  login & register bar  -->
+    <string name="logo">TalkTales</string>
+    <string name="Login">Login</string>
+    <string name="Register">Signup</string>
+
+    <!--  isi login regis  -->
+    <string name="Username">Username</string>
+    <string name="Email">Email</string>
+    <string name="Password">Password</string>
+    <string name="Confirm_Password">Confirm Password</string>
+
+    <string name="success_animation">Success Animation</string>
+    <string name="logged_in_nsuccesfully">Logged in\nSuccessfully</string>
+    <string name="registered_succesfully">Registered Successfully</string>
+
+    <string name="emailFormatError">Incorrect Email</string>
+    <string name="passwordHint">Password</string>
+    <string name="passwordLengthError">Min. 8 characters</string>
+    <string name="EmptyError">This Cannot be empty</string>
+
+    <!--  Button  -->
+    <string name="Login_2">LOGIN</string>
+    <string name="Register_2">SIGNUP</string>
+    <string name="talkstory">TalkStory</string>
+
+    <string name="are_you_sure">Are you sure ?</string>
+    <string name="this_will_not_be_saved">Your progress is not be saved</string>
+    <string name="continu">Continue</string>
+    <string name="cancel">Cancel</string>
+    <string name="prev">Prev</string>
+
+<!--    Conversation-->
+    <string name="prolog_1">Prolog 1</string>
+    <string name="character_1">Character 1</string>
+    <string name="story_banner">Story Banner</string>
+    <string name="profile">Profile</string>
+    <string name="character_1_name">Character 1 Name</string>
+    <string name="character_conversation">Character Conversation</string>
+    <string name="prolog_2">Prolog 2</string>
+    <string name="character_2">Character 2</string>
+    <string name="character_2_name">Character 2 Name</string>
+    <string name="send">Send</string>
+    <string name="target">Target</string>
+    <string name="feedback">Feedback</string>
 </resources>

@@ -1,12 +1,13 @@
 package com.capstone.talktales.ui.utils
 
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationSet
 import android.view.animation.LinearInterpolator
-import android.view.animation.OvershootInterpolator
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
@@ -15,16 +16,32 @@ import androidx.viewpager2.widget.ViewPager2
 import kotlin.math.abs
 
 fun View.startShimmer() {
-    val alphaAnimation = AlphaAnimation(0.3f, 1.0f)
-    alphaAnimation.duration = 1000
-    alphaAnimation.interpolator = LinearInterpolator()
-    alphaAnimation.repeatCount = AnimationSet.INFINITE
-    alphaAnimation.repeatMode = AnimationSet.REVERSE
-
+    val shimmerAnimation = AlphaAnimation(0.3f, 1.0f).apply {
+        duration = 600
+        interpolator = LinearInterpolator()
+        repeatCount = AnimationSet.INFINITE
+        repeatMode = AnimationSet.REVERSE
+    }
     val animationSet = AnimationSet(true)
-    animationSet.addAnimation(alphaAnimation)
-
+    animationSet.addAnimation(shimmerAnimation)
     startAnimation(animationSet)
+}
+
+fun View.zoomInFromZero(duration: Long = 300L) {
+    this.apply {
+        scaleX = 0f
+        scaleY = 0f
+        val scaleXAnimator = ObjectAnimator.ofFloat(this, "scaleX", 0f, 1f).apply {
+            this.duration = duration
+        }
+        val scaleYAnimator = ObjectAnimator.ofFloat(this, "scaleY", 0f, 1f).apply {
+            this.duration = duration
+        }
+        AnimatorSet().apply {
+            playTogether(scaleXAnimator, scaleYAnimator)
+            start()
+        }
+    }
 }
 
 inline fun ViewPager2.onPageSelected(crossinline action: (Int) -> Unit) {

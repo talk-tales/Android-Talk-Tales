@@ -1,35 +1,23 @@
 package com.capstone.talktales.data.repo
 
-import android.util.Log
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
 import com.capstone.talktales.data.local.preference.UserPreference
-import com.capstone.talktales.data.remote.response.ResponseResult
-import com.capstone.talktales.data.remote.retrofit.ApiService
-import kotlinx.coroutines.delay
-import okhttp3.MultipartBody
+import com.capstone.talktales.data.remote.retrofit.UserApiService
 
 class UserRepository(
-    private val apiService: ApiService,
+    private val userApiService: UserApiService,
     private val userPref: UserPreference
 ): BaseRepository() {
 
     suspend fun clearLoginUser() = userPref.clearLoginUser()
 
-    fun getStories() = callApiWrapped { apiService.getStories() }
+    fun getLoginUser() = userPref.getLoginUser().asLiveData()
 
-    fun getStoryDetail(id: String) = callApiWrapped { apiService.getStoryDetail(id) }
+    fun getStories() = callApiWrapped { userApiService.getStories() }
 
-    fun checkSceneAudio(audioFile: MultipartBody.Part) = callApiWrapped { apiService.checkUserAudio(audioFile) }
+    fun getStoryDetail(id: String) = callApiWrapped { userApiService.getStoryDetail(id) }
 
-    companion object {
-        @Volatile
-        private var instance: UserRepository? = null
+    fun getConversation(storyId: String) = callApiWrapped { userApiService.getConversationByStoryId(storyId) }
 
-        fun getInstance(apiService: ApiService, userPref: UserPreference): UserRepository =
-            instance ?: synchronized(this) {
-                instance ?: UserRepository(apiService, userPref)
-            }.also { instance = it }
 
-    }
 }

@@ -1,26 +1,28 @@
 package com.capstone.talktales.ui.home
 
 import android.content.Intent
-import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.capstone.talktales.R
+import com.capstone.talktales.data.model.StoryItem
+import com.capstone.talktales.data.model.Tutorial
 import com.capstone.talktales.data.remote.response.ResponseResult
 import com.capstone.talktales.data.remote.response.StoriesResponse
-import com.capstone.talktales.data.remote.response.Story
 import com.capstone.talktales.databinding.ActivityHomeBinding
 import com.capstone.talktales.factory.UserViewModelFactory
+import com.capstone.talktales.ui.tutorial.TutorialActivity
 import com.capstone.talktales.ui.userdetail.UserDetailActivity
 import com.capstone.talktales.ui.utils.BorderedCircleCropTransformation
 import com.capstone.talktales.ui.utils.applyMarginAndScalePageTransformer
@@ -46,9 +48,6 @@ class HomeActivity : AppCompatActivity() {
     private var pageChangeJob: Job? = null
     private lateinit var profilePicture: ImageView
 
-    val imgUri =
-        Uri.parse("android.resource://com.capstone.talktales/drawable/banner_timun") // Todo: Get from api
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,22 +58,56 @@ class HomeActivity : AppCompatActivity() {
             .getStories()
             .observe(this) { handleStoriesResponse(it) }
 
-        binding.tutorialBanner
-            .load(imgUri) {
-                // todo: get proper img
+        showTutorial()
+        binding.root.setOnScrollChangeListener { _, _, _, _, _ ->
+            @Suppress("DEPRECATION")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.insetsController?.hide(WindowInsets.Type.statusBars())
+            } else {
+                window.setFlags(
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN
+                )
+            }
+        }
+
+
+    }
+
+    private fun showTutorial() {
+        with(binding.tutorialBanner) {
+            load(Tutorial.BANNER) {
                 transformations(
                     RoundedCornersTransformation(16f)
                 )
             }
-
+            setOnClickListener {
+                startActivity(
+                    Intent(
+                        this@HomeActivity,
+                        TutorialActivity::class.java
+                    )
+                )
+            }
+        }
     }
 
     private fun handleStoriesResponse(responseResult: ResponseResult<StoriesResponse>) {
         when (responseResult) {
             is ResponseResult.Error -> handleStoryError(responseResult.msg)
-            is ResponseResult.Loading -> handleStoryLoading()
+            is ResponseResult.Loading -> {
+                showStorySkeleton(true)
+                showCarouselSkeleton(true)
+            }
+
             is ResponseResult.Success -> {
-                handleStorySuccess(responseResult.data)
+                val data = responseResult.data.listStoryItem
+                val carouselContent: ArrayList<Any> =
+                    arrayListOf(*data.toTypedArray(), Tutorial.BANNER)
+                showStorySkeleton(false)
+                showCarouselSkeleton(false)
+                showStories(data)
+                showCarousel(carouselContent)
             }
         }
     }
@@ -85,7 +118,7 @@ class HomeActivity : AppCompatActivity() {
         val menuItem = menu.findItem(R.id.profilePic)
 
         profilePicture = menuItem.actionView as ImageView
-        profilePicture.load(imgUri) {
+        profilePicture.load(profilePic) {
             transformations(
                 BorderedCircleCropTransformation(
                     dpToPx(this@HomeActivity, 2),
@@ -95,7 +128,6 @@ class HomeActivity : AppCompatActivity() {
         }
 
         profilePicture.setOnClickListener {
-            // TODO: Intent to detail User
             startActivity(Intent(this, UserDetailActivity::class.java))
         }
 
@@ -142,29 +174,17 @@ class HomeActivity : AppCompatActivity() {
 
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        @Suppress("DEPRECATION")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.hide(WindowInsets.Type.statusBars())
+        } else {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
         }
     }
 
-
-    private fun handleStorySuccess(data: StoriesResponse) {
-        showStorySkeleton(false)
-        showCarouselSkeleton(false)
-
-        // Todo: hide error
-
-        showStories(data.listStory)
-
-        // Todo: get from real API Endpoint
-        val imgList = data.listStory
-            .map { Uri.parse(it.imgUrl) }
-
-        // Todo: move this to proper API call
-        showCarousel(imgList)
-    }
 
     private fun showCarouselSkeleton(isShow: Boolean) {
         if (isShow) {
@@ -188,34 +208,32 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
-    private fun showCarousel(imgList: List<Uri>) {
+    private fun showCarousel(carouselContent: List<Any>) {
         with(binding.carousel) {
             visibility = View.VISIBLE
-            adapter = CarouselAdapter(imgList)
+            adapter = CarouselAdapter(carouselContent)
             onPageSelected { restartPageChangeCoroutine() }
             applyMarginAndScalePageTransformer()
             TabLayoutMediator(binding.tabLayout, binding.carousel) { _, _ -> }.attach()
         }
     }
 
-    private fun showStories(listStory: List<Story>) {
+    private fun showStories(listStoryItem: List<StoryItem>) {
         with(binding.rvStory) {
             visibility = View.VISIBLE
             layoutManager = LinearLayoutManager(this@HomeActivity)
-            adapter = StoryAdapter(listStory)
+            adapter = StoryAdapter(listStoryItem)
         }
     }
 
-    private fun handleStoryLoading() {
-        showStorySkeleton(true)
-        showCarouselSkeleton(true)
-    }
 
     private fun handleStoryError(msg: String) {
-//        TODO("Not yet implemented")
+        Toast.makeText(this@HomeActivity, msg, Toast.LENGTH_LONG).show()
     }
 
     companion object {
         private const val SLIDE_DELAY = 2000L
+        private val profilePic = "android.resource://com.capstone.talktales/drawable/account"
+
     }
 }

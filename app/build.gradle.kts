@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -19,7 +20,16 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"https://localhost:6969/\"")
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"https://backend-service-bch64czzyq-et.a.run.app/\""
+            )
+            buildConfigField(
+                "String",
+                "MODEL_URL",
+                "\"https://talktales-django-eresbajlya-uc.a.run.app/\""
+            )
 
         }
 
@@ -29,7 +39,16 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_URL", "\"https://localhost:6969/\"")
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"https://backend-service-bch64czzyq-et.a.run.app/\""
+            )
+            buildConfigField(
+                "String",
+                "MODEL_URL",
+                "\"https://talktales-django-eresbajlya-uc.a.run.app/\""
+            )
         }
     }
     compileOptions {
@@ -72,8 +91,15 @@ dependencies {
 
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.exoplayer.dash)
+    implementation(libs.android.wave.recorder)
+
+    implementation(libs.lottie)
+
+
 
     implementation(libs.coil)
+    implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.recyclerview)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

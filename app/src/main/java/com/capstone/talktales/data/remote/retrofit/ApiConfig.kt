@@ -1,7 +1,6 @@
 package com.capstone.talktales.data.remote.retrofit
 
 import android.content.Context
-import android.util.Log
 import com.capstone.talktales.BuildConfig
 import com.mustafayigit.mockresponseinterceptor.MockResponseInterceptor
 import okhttp3.Interceptor
@@ -12,12 +11,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiConfig {
 
-    fun getApiService(context: Context, token: String): ApiService {
+    fun getUserApiService(context: Context, token: String): UserApiService {
 
         val loggingInterceptor = HttpLoggingInterceptor()
 
         if (BuildConfig.DEBUG)
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC)
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
         else
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
 
@@ -40,7 +39,7 @@ object ApiConfig {
         val client = OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(authInterceptor)
-            .addInterceptor(mockInterceptor)         // Todo: Remove when Real-API implemented
+            .addInterceptor(mockInterceptor)
             .build()
 
         val retrofit = Retrofit.Builder()
@@ -49,6 +48,50 @@ object ApiConfig {
             .client(client)
             .build()
 
-        return retrofit.create(ApiService::class.java)
+        return retrofit.create(UserApiService::class.java)
     }
+
+    fun getAuthApiService(): AuthApiService {
+        val loggingInterceptor = HttpLoggingInterceptor()
+
+        if (BuildConfig.DEBUG)
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+        else
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
+
+        val client = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+
+        return retrofit.create(AuthApiService::class.java)
+    }
+
+    fun getModelApiService(): ModelApiService {
+        val loggingInterceptor = HttpLoggingInterceptor()
+
+        if (BuildConfig.DEBUG)
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+        else
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
+        val client = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BuildConfig.MODEL_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+
+        return retrofit.create(ModelApiService::class.java)
+
+    }
+
+
 }
